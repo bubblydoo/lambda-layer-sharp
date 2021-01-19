@@ -1,6 +1,6 @@
 FROM lambci/lambda:build-nodejs12.x
 
-COPY package* .
+COPY * ./
 
 RUN npm --no-optional --no-audit --progress=false install
 
