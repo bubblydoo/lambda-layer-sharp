@@ -52,6 +52,11 @@ jobs:
       with:
         name: sharp-lambda-layer.zip
         path: dist/sharp-layer.zip
+        if-no-files-found: error
+    - name: Check size
+      id: check_size
+      run: |
+        echo "::set-output name=size::$(du -h dist/sharp-layer.zip | grep -Po "\w+" | head -1)"
     - name: Create release
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       id: create_release
@@ -61,8 +66,10 @@ jobs:
       with:
         tag_name: ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
         release_name: Version ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
-        draft: false
-        prerelease: false
+        body: |
+          | Filename | Size |
+          | --- | --- |
+          | `sharp-lambda-layer.zip` | ${{ steps.check_size.outputs.size }} |
     - name: Upload release asset
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       id: upload_release_asset
