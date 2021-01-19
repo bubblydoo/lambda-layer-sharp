@@ -29,8 +29,7 @@ jobs:
       with:
         images: hansottowirtz/amazon-linux-sharp-layer
         tag-sha: true
-        tag-latest: true
-        tag-custom: ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
+        tag-custom: dev,${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
     - name: Login to Docker Hub
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: docker/login-action@v1
@@ -47,7 +46,7 @@ jobs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
     - name: Copy artifacts
-      run: docker run -v "${{ github.workspace }}/dist":/dist hansottowirtz/amazon-linux-sharp-layer:latest
+      run: docker run -v "${{ github.workspace }}/dist":/dist hansottowirtz/amazon-linux-sharp-layer:dev
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -64,7 +63,7 @@ jobs:
         release_name: Version ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
         draft: false
         prerelease: false
-    - name: Upload Release Asset
+    - name: Upload release asset
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       id: upload_release_asset
       uses: actions/upload-release-asset@v1
