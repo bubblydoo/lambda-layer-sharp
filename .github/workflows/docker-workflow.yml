@@ -1,4 +1,4 @@
-name: Build Docker Layer
+name: Build Layer ZIP
 
 on:
   push:
@@ -51,5 +51,27 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: Layer ZIP
+        name: sharp-lambda-layer.zip
         path: dist/sharp-layer.zip
+    - name: Create release
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
+        release_name: Version ${{ fromJSON(steps.vars.outputs.packageLockJson).dependencies.sharp.version }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      id: upload_release_asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/sharp-layer.zip
+        asset_name: sharp-lambda-layer.zip
+        asset_content_type: application/zip
