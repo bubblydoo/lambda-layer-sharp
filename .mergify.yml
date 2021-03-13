@@ -1,7 +1,7 @@
 pull_request_rules:
   - name: Automatic Sharp update merge
     conditions:
-      - "check-success=Build Layer ZIP"
+      - "check-success~=Build"
       - base=master
       - "label=sharp update"
     actions:
